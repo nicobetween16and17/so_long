@@ -60,6 +60,13 @@ int	check_error(t_map *map)
 		return (no_exit_error());
 	return (1);
 }
+int init_game2(t_player *player)
+{
+	player->nb_mooves = 0;
+	player->nb_collectibles = 0;
+	player->hp = 6;
+	return (1);
+}
 
 int	init_game(t_player *player, t_map map)
 {
@@ -74,17 +81,14 @@ int	init_game(t_player *player, t_map map)
 		j = -1;
 		while (map.map[i][++j])
 		{
-			if (map.map[i][j] == 'P')
+			if (map.map[i][j] == 'P' && bool--)
 			{
-				bool--;
-				(*player).current_position.x = i;
-				(*player).current_position.y = j;
+				player->cp.x = i;
+				player->cp.y = j;
 			}
 		}
 	}
 	if (bool != 0)
 		return (mc_error());
-	(*player).nb_mooves = 0;
-	(*player).nb_collectibles = 0;
-	return (1);
+	return (init_game2(player));
 }

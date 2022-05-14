@@ -12,87 +12,115 @@
 
 #include "so_long.h"
 
-static int	possible_moove(int key, char **map, t_position pos)
+int	set_image2(t_vars *vars, t_position pos, char c)
 {
-	if (key == 13)
-		return (map[pos.x + 1][pos.y] != '1');
-	if (key == 0)
-		return (map[pos.x][pos.y + 1] != '1');
-	if (key == 2)
-		return (map[pos.x][pos.y - 1] != '1');
-	if (key == 1)
-		return (map[pos.x - 1][pos.y] != '1');
-	return (0);
+	if (c == '1' && pos.x == 0)
+		return (put_it(vars, pos, 23));
+	if (c == '1' && pos.x == vars->map.width - 1)
+		return (put_it(vars, pos, 24));
+	if (c == '1' && pos.y == 0)
+		return (put_it(vars, pos, 21));
+	if (c == '1' && pos.y == vars->map.height - 1)
+		return (put_it(vars, pos, 22));
+	if (c == '1')
+		return (put_it(vars, pos, 0));
+	if (c == '0')
+		return (put_it(vars, pos, 3));
+	if (c == 'P')
+		return (put_it(vars, pos, 6));
+	if (c == 'E' && vars->player.nb_collectibles == vars->map.nb_collectibles)
+		return (put_it(vars, pos, 20));
+	if (c == 'E' && vars->player.nb_collectibles != vars->map.nb_collectibles)
+		return (put_it(vars, pos, 26));
+	if (c == 'C')
+		return (put_it(vars, pos, 25));
+	return (1);
 }
-void	put_it(t_vars vars, t_position pos, int img)
-{
-	ft_printf("test3 %d %d \n", vars.map.data_size, img);
-	mlx_put_image_to_window(vars.mlx, vars.win, vars.map.images[img].img,
-		pos.x * vars.map.data_size, pos.y * vars.map.data_size);
-}
-void	set_image(t_vars vars, t_position pos, char c)
+
+int	set_image(t_vars *vars, t_position pos, char c, char next)
 {
 	srand((unsigned int)(-1 * (long)&pos.x));
-	if (c == '1' && pos.x == 0 && pos.y == vars.map.width - 1)
-		put_it(vars, pos, 16);
+	put_it(vars, pos, 3);
+	if (c == 'P' && next != 0)
+		set_image(vars, pos, next, 0);
 	if (c == '1' && pos.x == 0 && pos.y == 0)
-		put_it(vars, pos, 18);
-	if (c == '1' && pos.x == vars.map.height - 1 && pos.y == 0)
-		put_it(vars, pos, 17);
-	if (c == '1' && pos.x == vars.map.height - 1 && pos.y == vars.map.width - 1)
-		put_it(vars, pos, 19);
-	if (c == '1' && (pos.x == 0 || pos.x == vars.map.width - 1))
-		put_it(vars, pos, 0);
-	if (c == '1' && (pos.y == 0 || pos.y == vars.map.height - 1))
-		put_it(vars, pos, 1);
-	else if (c == '1')
-		put_it(vars, pos, 2);
-	if (c == '0' || c == 'P')
-		put_it(vars, pos, (rand() % 3) + 3);
-	if (c == 'P')
-		put_it(vars, pos, 6);
-	if (c == 'E')
-		put_it(vars, pos, 20);
-	if (c == 'C')
-		put_it(vars, pos, 5);
+		return (put_it(vars, pos, 16));
+	if (c == '1' && pos.x == 0 && pos.y == vars->map.height - 1)
+		return (put_it(vars, pos, 18));
+	if (c == '1' && pos.x == vars->map.width - 1 && pos.y == 0)
+		return (put_it(vars, pos, 17));
+	if (c == '1' && pos.x == vars->map.width - 1 && pos.y == vars->map.height - 1)
+		return (put_it(vars, pos, 19));
+	return (set_image2(vars, pos, c));
 }
-void	display_map(t_vars vars, char **map)
-{
-	t_position pos;
 
-	pos.x = -1;
-	while(map[++pos.x])
+void	display_map(t_vars *v, char **map, char next)
+{
+	t_position	pos;
+
+	pos.y = -1;
+	while (map[++pos.y])
 	{
-		pos.y = -1;
-		while (map[pos.x][++pos.y])
-			set_image(vars, pos, map[pos.x][pos.y]);
+		pos.x = -1;
+		while (map[pos.y][++pos.x])
+			set_image(v, pos, map[pos.y][pos.x], next);
 	}
+	pos.y = -1;
+	pos.x = 1;
+	while (++pos.y < v->player.hp / 2)
+		mlx_put_image_to_window(v->mlx, v->win, v->map.images[27].img, 15 * pos.x++, 10);
+	pos.y = -1;
+	while (++pos.y < v->player.hp % 2)
+		mlx_put_image_to_window(v->mlx, v->win, v->map.images[28].img, 15 * pos.x++, 10);
+	pos.y = -1;
+	while (++pos.y < 3 - ((v->player.hp % 2) + (v->player.hp / 2)))
+		mlx_put_image_to_window(v->mlx, v->win, v->map.images[29].img, 15 * pos.x++, 10);
 }
 
-void	handle_input(int keycode, t_map *map, t_player *player, t_vars vars)
+void	handle_input2(int keycode, t_map *map, t_player *player, char *last_pos)
 {
-	ft_printf("input chosen is [%d]\n", keycode);
-	if (!possible_moove(keycode, map->map, player->current_position))
+	if (keycode == 13)
+		map->map[player->cp.x][player->cp.y] = *last_pos;
+	if (keycode == 0)
+		map->map[player->cp.x][player->cp.y] = *last_pos;
+	if (keycode == 2)
+		map->map[player->cp.x][player->cp.y] = *last_pos;
+	if (keycode == 1)
+		map->map[player->cp.x][player->cp.y] = *last_pos;
+	if (keycode == 1)
+		player->cp.x += 1;
+	if (keycode == 0)
+		player->cp.y -= 1;
+	if (keycode == 2)
+		player->cp.y += 1;
+	if (keycode == 13)
+		player->cp.x -= 1;
+	*last_pos = map->map[player->cp.x][player->cp.y];
+	if (*last_pos == 'C')
+		*last_pos = '0';
+}
+
+void	handle_input(int keycode, t_map *map, t_player *player, t_vars *vars)
+{
+	static char	last_pos;
+	static int	final_sound;
+
+	ft_printf("keycode is %d\n", keycode);
+	firing(keycode, vars);
+	if (!last_pos)
+		last_pos = '0';
+	if (!possible_moove(keycode, map->map, player->cp))
 		return ;
+	handle_input2(keycode, map, player, &last_pos);
 	player->nb_mooves++;
-	if (keycode == 13)
-		map->map[player->current_position.x][player->current_position.y] = '0';
-	if (keycode == 0)
-		map->map[player->current_position.x][player->current_position.y] = '0';
-	if (keycode == 2)
-		map->map[player->current_position.x][player->current_position.y] = '0';
-	if (keycode == 1)
-		map->map[player->current_position.x][player->current_position.y] = '0';
-	if (keycode == 13)
-		player->current_position.x -= 1;
-	if (keycode == 0)
-		player->current_position.y -= 1;
-	if (keycode == 2)
-		player->current_position.y += 1;
-	if (keycode == 1)
-		player->current_position.x += 1;
-	if (map->map[player->current_position.x][player->current_position.y] == 'C')
+	if (map->map[player->cp.x][player->cp.y] == 'C')
+	{
 		player->nb_collectibles += 1;
-	map->map[player->current_position.x][player->current_position.y] = 'P';
-	display_map(vars, map->map);
+		system("afplay sound/penny_pickup_1.wav &");
+	}
+	map->map[player->cp.x][player->cp.y] = 'P';
+	if (map->nb_collectibles == player->nb_collectibles && !final_sound++)
+		system("afplay sound/golden_key.wav &");
+
+	display_map(vars, map->map, last_pos);
 }

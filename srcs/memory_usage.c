@@ -27,3 +27,12 @@ void	end_game(t_map map)
 	free_map_array(map.map);
 	free(map.exits);
 }
+
+t_position	new_pos(int x, int y)
+{
+	t_position	pos;
+
+	pos.x = x;
+	pos.y = y;
+	return (pos);
+}

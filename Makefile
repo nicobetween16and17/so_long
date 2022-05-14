@@ -12,12 +12,12 @@ SRCFILES		=   ../ft_printf/ft_print_ptr.c\
                     ../gnl/get_next_line_utils.c\
                     memory_usage.c\
                     controlls.c\
-                    random.c\
                     error_checking.c\
                     errors_displayed.c\
                     inputs.c\
                     parse_map.c\
                     main.c\
+                    battle.c\
 
 
 SRCS			=	$(addprefix $(SRCDIR), $(SRCFILES))

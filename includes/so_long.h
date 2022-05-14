@@ -20,8 +20,10 @@
 # include <math.h>
 # include <fcntl.h>
 # include <mlx.h>
+# include <pthread.h>
 
-typedef struct	s_data {
+
+typedef struct s_data {
 	void	*img;
 	char	*addr;
 	int		bits_per_pixel;
@@ -51,8 +53,9 @@ typedef struct s_map
 typedef struct s_player
 {
 	int			nb_collectibles;
-	t_position	current_position;
+	t_position	cp;
 	int			nb_mooves;
+	int 		hp;
 }	t_player;
 
 typedef struct	s_vars {
@@ -60,7 +63,16 @@ typedef struct	s_vars {
 	void		*win;
 	t_player	player;
 	t_map		map;
+	int			t_v;
+	int			t_h;
 }	t_vars;
+
+typedef struct s_args
+{
+	t_vars	vars;
+	int		i;
+	int		j;
+}	t_args;
 
 int			ft_printf(const char *p, ...);
 int			ft_print_hex(unsigned int s, int cas);
@@ -88,10 +100,14 @@ int			argument_error(void);
 void		free_map_array(char **map);
 int 		check_error(t_map *map);
 int 		init_game(t_player *player, t_map map);
-void		handle_input(int keycode, t_map *map, t_player *player, t_vars vars);
+void		handle_input(int keycode, t_map *map, t_player *player, t_vars *vars);
 void 		end_game(t_map map);
-void		display_map(t_vars vars, char **map);
+void		display_map(t_vars *vars, char **map, char next);
 int			random_in_range(int a, int range, int start);
 void		ft_bzero(void *b, size_t length);
+int			possible_moove(int key, char **map, t_position pos);
+int			put_it(t_vars *vars, t_position pos, int img);
+t_position	new_pos(int x, int y);
+void		firing(int key, t_vars *v);
 
 #endif

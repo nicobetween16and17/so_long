@@ -40,7 +40,6 @@ char	*lines(char *path, int BUFFER)
 	read(fd, lines, BUFFER);
 	lines[BUFFER] = 0;
 	close(fd);
-	ft_printf("lines = \n%s\n", lines);
 	return (lines);
 }
 

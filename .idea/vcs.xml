@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/gnl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/so_long_random_map_gen" vcs="" />
   </component>
 </project>
